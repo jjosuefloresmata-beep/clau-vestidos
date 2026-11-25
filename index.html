@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clau Vestidos — Catálogo de Vestidos</title>
+  <meta name="description" content="Catálogo digital de Clau Vestidos con disponibilidad en tiempo real y pedidos directos por WhatsApp." />
+
+  <!-- Tipografías editoriales de boutique -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS vía CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            cream: '#FAF8F5',
+            ivory: '#F3EFEA',
+            charcoal: '#1A1817',
+            muted: '#6B6560',
+            dustyrose: {
+              DEFAULT: '#B57B7D',
+              dark: '#965F61',
+              light: '#F6ECEC',
+            },
+            gold: '#C4A265',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .modal-animate {
+      animation: modalFadeIn 0.25s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="bg-cream text-charcoal font-sans antialiased selection:bg-dustyrose/20 selection:text-charcoal">
+
+  <!-- ================= NAVBAR STICKY ================= -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Fila Superior: Marca + Buscador -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-3.5">
+        <!-- Logotipo y Nombre de Boutique -->
+        <div class="flex items-center justify-between">
+          <a href="#" id="brand-reset" class="flex items-center gap-2.5 group">
+            <div class="w-9 h-9 rounded-full bg-charcoal text-cream flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L9 7l-4 1 3 4-1 9h10l-1-9 3-4-4-1-3-5z" />
+                <path d="M9 12h6" />
+              </svg>
+            </div>
+            <div>
+              <span id="boutique-title" class="block font-serif text-lg sm:text-xl font-semibold tracking-tight leading-none text-charcoal">
+                Clau Vestidos
+              </span>
+              <span class="block text-[10px] uppercase tracking-[0.2em] text-muted mt-0.5">
+                Boutique de Vestidos
+              </span>
+            </div>
+          </a>
+
+          <!-- Contador móvil de resultados -->
+          <span id="mobile-count" class="sm:hidden text-xs text-muted font-medium"></span>
+        </div>
+
+        <!-- Buscador de modelos -->
+        <div class="relative w-full sm:w-80 md:w-96">
+          <span class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </span>
+          <input
+            type="search"
+            id="search-input"
+            placeholder="Buscar modelo, tela o código..."
+            autocomplete="off"
+            class="w-full pl-10 pr-4 py-2 text-sm bg-cream border border-stone-200 rounded-full text-charcoal placeholder:text-stone-400 focus:outline-none focus:border-dustyrose focus:ring-2 focus:ring-dustyrose/20 transition"
+          />
+        </div>
+      </div>
+
+      <!-- Fila Inferior: Filtros rápidos de Categoría y Talla -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 pb-3 border-t border-stone-100 pt-2.5">
+        <!-- Selector rápido de categorías (generado dinámicamente) -->
+        <div id="category-filters" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5" role="tablist" aria-label="Filtrar por categoría">
+        </div>
+
+        <!-- Filtro de talla disponible -->
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="text-xs font-medium text-muted uppercase tracking-wider">Talla:</span>
+          <div id="size-filters" class="flex items-center gap-1" role="group" aria-label="Filtrar por talla disponible">
+            <button type="button" data-size="ALL" class="size-filter-btn px-2.5 py-1 text-xs font-medium rounded-md border transition bg-charcoal text-white border-charcoal">
+              Todas
+            </button>
+            <button type="button" data-size="S" class="size-filter-btn px-2.5 py-1 text-xs font-medium rounded-md border transition bg-white text-charcoal border-stone-200 hover:border-charcoal">
+              S
+            </button>
+            <button type="button" data-size="M" class="size-filter-btn px-2.5 py-1 text-xs font-medium rounded-md border transition bg-white text-charcoal border-stone-200 hover:border-charcoal">
+              M
+            </button>
+            <button type="button" data-size="L" class="size-filter-btn px-2.5 py-1 text-xs font-medium rounded-md border transition bg-white text-charcoal border-stone-200 hover:border-charcoal">
+              L
+            </button>
+            <button type="button" data-size="XL" class="size-filter-btn px-2.5 py-1 text-xs font-medium rounded-md border transition bg-white text-charcoal border-stone-200 hover:border-charcoal">
+              XL
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CONTENIDO PRINCIPAL ================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 min-h-[75vh]">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6 sm:mb-8">
+      <div>
+        <p class="text-xs uppercase tracking-[0.22em] text-dustyrose font-semibold mb-1">
+          Colección Disponible
+        </p>
+        <h1 class="font-serif text-2xl sm:text-3xl font-semibold text-charcoal">
+          Catálogo de Vestidos
+        </h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <p id="desktop-count" class="hidden sm:block text-sm text-muted"></p>
+        <button
+          type="button"
+          id="btn-refresh"
+          title="Actualizar inventario"
+          class="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-charcoal px-3 py-1.5 rounded-full border border-stone-200 bg-white hover:border-stone-300 transition"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Actualizar stock
+        </button>
+      </div>
+    </div>
+
+    <!-- Banner de aviso / error de conexión -->
+    <div id="status-banner" class="hidden mb-6 rounded-2xl border p-5 bg-white shadow-sm"></div>
+
+    <!-- Skeleton de carga -->
+    <div id="loading-skeleton" class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"></div>
+
+    <!-- Grid de Productos: 2 columnas móvil, 4 columnas escritorio -->
+    <section
+      id="product-grid"
+      class="hidden grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
+      aria-live="polite"
+    ></section>
+
+    <!-- Estado vacío cuando los filtros no devuelven resultados -->
+    <div id="empty-state" class="hidden text-center py-16 px-4 bg-white rounded-2xl border border-stone-200/70">
+      <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-ivory flex items-center justify-center text-muted">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+      <h2 class="font-serif text-lg font-semibold text-charcoal mb-1">
+        No encontramos vestidos con esos filtros
+      </h2>
+      <p class="text-sm text-muted mb-5 max-w-md mx-auto">
+        Prueba seleccionando otra talla, cambiando de categoría o limpiando tu búsqueda.
+      </p>
+      <button
+        type="button"
+        id="btn-clear-filters"
+        class="px-5 py-2.5 text-sm font-medium rounded-full bg-charcoal text-white hover:bg-dustyrose-dark transition"
+      >
+        Ver todo el catálogo
+      </button>
+    </div>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="border-t border-stone-200/80 bg-white mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted">
+      <p>&copy; <span id="footer-year"></span> <span id="footer-boutique">Clau Vestidos</span>. Todos los derechos reservados.</p>
+      <p>Inventario sincronizado en tiempo real · Pedidos directos por WhatsApp</p>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL DE DETALLE DE PRODUCTO ================= -->
+  <div
+    id="product-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-charcoal/60 backdrop-blur-xs overflow-y-auto"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+  >
+    <div
+      id="modal-panel"
+      class="modal-animate relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col md:flex-row"
+    >
+      <!-- Botón Cerrar -->
+      <button
+        type="button"
+        id="modal-close"
+        aria-label="Cerrar ventana"
+        class="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/90 text-charcoal shadow-md flex items-center justify-center hover:bg-charcoal hover:text-white transition"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Columna Imagen Ampliada -->
+      <div class="w-full md:w-1/2 bg-ivory relative shrink-0">
+        <img
+          id="modal-image"
+          src=""
+          alt=""
+          class="w-full h-72 sm:h-96 md:h-full object-cover object-center"
+        />
+        <span
+          id="modal-id-badge"
+          class="absolute bottom-3 left-3 px-2.5 py-1 text-[11px] font-medium tracking-wider uppercase rounded-full bg-white/90 text-charcoal backdrop-blur-xs"
+        ></span>
+      </div>
+
+      <!-- Columna Información y Selección de Talla -->
+      <div class="w-full md:w-1/2 p-5 sm:p-7 flex flex-col justify-between overflow-y-auto">
+        <div>
+          <span
+            id="modal-category"
+            class="inline-block text-[11px] uppercase tracking-[0.2em] text-dustyrose font-semibold mb-1"
+          ></span>
+          <h2 id="modal-title" class="font-serif text-2xl sm:text-3xl font-semibold text-charcoal leading-tight"></h2>
+          <p id="modal-price" class="text-xl sm:text-2xl font-bold text-charcoal mt-2"></p>
+
+          <hr class="my-4 border-stone-200/80" />
+
+          <h3 class="text-xs uppercase tracking-wider font-semibold text-muted mb-1.5">
+            Descripción y detalles
+          </h3>
+          <p id="modal-description" class="text-sm text-stone-600 leading-relaxed mb-5"></p>
+
+          <!-- Sección de Selección de Tallas -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs uppercase tracking-wider font-semibold text-charcoal">
+                Selecciona tu talla
+              </span>
+              <span id="modal-size-status" class="text-xs font-medium text-muted"></span>
+            </div>
+
+            <div id="modal-sizes-container" class="grid grid-cols-4 gap-2.5"></div>
+
+            <!-- Indicador de últimas piezas (color naranja) o alerta de validación -->
+            <div id="modal-stock-alert" class="mt-2.5 min-h-[20px] text-xs font-semibold"></div>
+          </div>
+        </div>
+
+        <!-- Botón de Acción Principal (WhatsApp / Agotado) -->
+        <div class="pt-3 border-t border-stone-100">
+          <button
+            type="button"
+            id="btn-confirm-order"
+            class="w-full py-3.5 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition shadow-sm"
+          ></button>
+          <p id="modal-helper-note" class="text-[11px] text-center text-muted mt-2">
+            Serás redirigida a WhatsApp con los detalles de tu vestido listo para enviar.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= LÓGICA DE APLICACIÓN (ES6+) ================= -->
+  <script>
+    /**
+     * =========================================================================
+     * 1. CONFIGURACIÓN GLOBAL DE CLAU VESTIDOS
+     * =========================================================================
+     */
+    const SPREADSHEET_ID = '1HNfHiqR5hc0aqnnzxWvyRUtPFfwnBTVr7XHCRYe93eE';
+    const API_KEY = 'AIzaSyDl7lzKtI344n86jUoJe6BU6P3t2NsmEJA';
+    const SHEET_NAME = 'catalogo_vestidos_muestra';
+    const WHATSAPP_PHONE = '5215636790906';
+
+    const BOUTIQUE_NAME = 'Clau Vestidos';
+    const CURRENCY_LOCALE = 'es-MX';
+    const CURRENCY_CODE = 'MXN';
+
+    const FALLBACK_IMAGE =
+      'data:image/svg+xml;charset=UTF-8,' +
+      encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+          <rect width="600" height="800" fill="#F3EFEA"/>
+          <text x="50%" y="48%" dominant-baseline="middle" text-anchor="middle" fill="#9A938C" font-family="Georgia, serif" font-size="22">Imagen no disponible</text>
+          <text x="50%" y="53%" dominant-baseline="middle" text-anchor="middle" fill="#B5AFA8" font-family="sans-serif" font-size="14">Verifica el enlace directo</text>
+        </svg>`
+      );
+
+    /**
+     * =========================================================================
+     * 2. ESTADO DE LA APLICACIÓN Y REFERENCIAS AL DOM
+     * =========================================================================
+     */
+    const state = {
+      inventory: [],
+      selectedCategory: 'ALL',
+      selectedSizeFilter: 'ALL',
+      searchQuery: '',
+      activeProduct: null,
+      selectedModalSize: null,
+    };
+
+    const dom = {
+      boutiqueTitle: document.getElementById('boutique-title'),
+      footerBoutique: document.getElementById('footer-boutique'),
+      footerYear: document.getElementById('footer-year'),
+      brandReset: document.getElementById('brand-reset'),
+      searchInput: document.getElementById('search-input'),
+      categoryFilters: document.getElementById('category-filters'),
+      sizeFilters: document.getElementById('size-filters'),
+      productGrid: document.getElementById('product-grid'),
+      loadingSkeleton: document.getElementById('loading-skeleton'),
+      emptyState: document.getElementById('empty-state'),
+      statusBanner: document.getElementById('status-banner'),
+      mobileCount: document.getElementById('mobile-count'),
+      desktopCount: document.getElementById('desktop-count'),
+      btnRefresh: document.getElementById('btn-refresh'),
+      btnClearFilters: document.getElementById('btn-clear-filters'),
+      // Modal
+      modal: document.getElementById('product-modal'),
+      modalClose: document.getElementById('modal-close'),
+      modalImage: document.getElementById('modal-image'),
+      modalIdBadge: document.getElementById('modal-id-badge'),
+      modalCategory: document.getElementById('modal-category'),
+      modalTitle: document.getElementById('modal-title'),
+      modalPrice: document.getElementById('modal-price'),
+      modalDescription: document.getElementById('modal-description'),
+      modalSizesContainer: document.getElementById('modal-sizes-container'),
+      modalSizeStatus: document.getElementById('modal-size-status'),
+      modalStockAlert: document.getElementById('modal-stock-alert'),
+      btnConfirmOrder: document.getElementById('btn-confirm-order'),
+      modalHelperNote: document.getElementById('modal-helper-note'),
+    };
+
+    /**
+     * =========================================================================
+     * 3. UTILIDADES DE FORMATO Y PARSEO
+     * =========================================================================
+     */
+    function parsePrice(rawValue) {
+      if (typeof rawValue === 'number') return isNaN(rawValue) ? 0 : rawValue;
+      const cleaned = String(rawValue ?? '')
+        .replace(/[^0-9.-]+/g, '')
+        .trim();
+      const num = Number(cleaned);
+      return Number.isFinite(num) ? num : 0;
+    }
+
+    function parseStock(rawValue) {
+      const num = parseInt(String(rawValue ?? '0').trim(), 10);
+      return Number.isFinite(num) && num > 0 ? num : 0;
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat(CURRENCY_LOCALE, {
+        style: 'currency',
+        currency: CURRENCY_CODE,
+        minimumFractionDigits: 2,
+      }).format(amount);
+    }
+
+    function normalizeText(text) {
+      return String(text ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function getTotalStock(product) {
+      return (
+        product.stock.S +
+        product.stock.M +
+        product.stock.L +
+        product.stock.XL
+      );
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * =========================================================================
+     * 4. CONEXIÓN A GOOGLE SHEETS API V4 Y PROCESAMIENTO DE DATOS
+     * =========================================================================
+     */
+    async function fetchInventory() {
+      showLoading(true);
+      hideBanner();
+
+      const range = encodeURIComponent(`${SHEET_NAME}!A2:J`);
+      const endpoint = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(
+        SPREADSHEET_ID
+      )}/values/${range}?key=${encodeURIComponent(API_KEY)}`;
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'GET',
+          headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) {
+          let errorDetail = `Código HTTP ${response.status}`;
+          try {
+            const errJson = await response.json();
+            if (errJson?.error?.message) {
+              errorDetail = errJson.error.message;
+            }
+          } catch (_) {
+            // Ignorar error de parseo
+          }
+          throw new Error(errorDetail);
+        }
+
+        const data = await response.json();
+        const rows = Array.isArray(data.values) ? data.values : [];
+
+        state.inventory = rows
+          .filter((row) => row && (row[0] || row[1]))
+          .map((row, index) => ({
+            id: String(row[0] ?? `V${String(index + 1).padStart(3, '0')}`).trim(),
+            modelo: String(row[1] ?? 'Vestido sin nombre').trim(),
+            categoria: String(row[2] ?? 'General').trim(),
+            descripcion: String(row[3] ?? 'Sin descripción disponible.').trim(),
+            precio: parsePrice(row[4]),
+            stock: {
+              S: parseStock(row[5]),
+              M: parseStock(row[6]),
+              L: parseStock(row[7]),
+              XL: parseStock(row[8]),
+            },
+            imagen: String(row[9] ?? '').trim() || FALLBACK_IMAGE,
+          }));
+
+        if (state.inventory.length === 0) {
+          showStatusBanner(
+            'Hoja de cálculo vacía',
+            `La conexión fue exitosa, pero no se encontraron registros a partir de la fila 2 en la pestaña <strong>${escapeHtml(
+              SHEET_NAME
+            )}</strong>.`,
+            'info'
+          );
+        }
+
+        renderCategoryFilters();
+        applyFiltersAndRender();
+      } catch (error) {
+        console.error('Error al consumir Google Sheets API v4:', error);
+        showStatusBanner(
+          'No se pudo cargar el inventario',
+          `Detalle técnico: <code>${escapeHtml(error.message)}</code>. Verifica que la hoja esté compartida como "Cualquier persona con el enlace (Lector)", que la pestaña se llame <strong>${escapeHtml(
+            SHEET_NAME
+          )}</strong> y que la Google Sheets API esté habilitada en tu proyecto.`,
+          'error'
+        );
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 5. RENDERIZADO DE UI: SKELETON, FILTROS Y GRID DE PRODUCTOS
+     * =========================================================================
+     */
+    function renderSkeletons() {
+      dom.loadingSkeleton.innerHTML = Array.from({ length: 8 })
+        .map(
+          () => `
+          <div class="bg-white rounded-2xl overflow-hidden border border-stone-200/70 animate-pulse">
+            <div class="aspect-[3/4] bg-stone-200/80"></div>
+            <div class="p-3.5 space-y-2">
+              <div class="h-3 w-1/3 bg-stone-200 rounded"></div>
+              <div class="h-4 w-3/4 bg-stone-200 rounded"></div>
+              <div class="h-4 w-1/2 bg-stone-200 rounded"></div>
+            </div>
+          </div>`
+        )
+        .join('');
+    }
+
+    function showLoading(isLoading) {
+      dom.loadingSkeleton.classList.toggle('hidden', !isLoading);
+      if (isLoading) {
+        dom.productGrid.classList.add('hidden');
+        dom.emptyState.classList.add('hidden');
+      }
+    }
+
+    function showStatusBanner(title, htmlMessage, type = 'info') {
+      const styles = {
+        error: 'border-red-200 bg-red-50/70 text-red-900',
+        warning: 'border-amber-200 bg-amber-50/80 text-amber-950',
+        info: 'border-stone-200 bg-white text-charcoal',
+      };
+      dom.statusBanner.className = `mb-6 rounded-2xl border p-5 shadow-sm ${styles[type] || styles.info}`;
+      dom.statusBanner.innerHTML = `
+        <h3 class="font-semibold text-sm mb-1">${escapeHtml(title)}</h3>
+        <p class="text-xs sm:text-sm leading-relaxed opacity-90">${htmlMessage}</p>
+      `;
+      dom.statusBanner.classList.remove('hidden');
+    }
+
+    function hideBanner() {
+      dom.statusBanner.classList.add('hidden');
+      dom.statusBanner.innerHTML = '';
+    }
+
+    function renderCategoryFilters() {
+      const uniqueCategories = Array.from(
+        new Set(state.inventory.map((item) => item.categoria).filter(Boolean))
+      ).sort((a, b) => a.localeCompare(b, 'es'));
+
+      const categories = [{ key: 'ALL', label: 'Todos' }].concat(
+        uniqueCategories.map((cat) => ({ key: cat, label: cat }))
+      );
+
+      dom.categoryFilters.innerHTML = categories
+        .map((cat) => {
+          const isActive = state.selectedCategory === cat.key;
+          const activeClasses = isActive
+            ? 'bg-charcoal text-white border-charcoal shadow-xs'
+            : 'bg-white text-muted border-stone-200 hover:border-charcoal hover:text-charcoal';
+          return `
+            <button
+              type="button"
+              role="tab"
+              aria-selected="${isActive}"
+              data-category="${escapeHtml(cat.key)}"
+              class="category-btn shrink-0 px-3.5 py-1.5 text-xs font-medium rounded-full border transition ${activeClasses}"
+            >
+              ${escapeHtml(cat.label)}
+            </button>
+          `;
+        })
+        .join('');
+    }
+
+    function updateSizeFilterUI() {
+      const buttons = dom.sizeFilters.querySelectorAll('.size-filter-btn');
+      buttons.forEach((btn) => {
+        const isActive = btn.dataset.size === state.selectedSizeFilter;
+        btn.className = isActive
+          ? 'size-filter-btn px-2.5 py-1 text-xs font-medium rounded-md border transition bg-charcoal text-white border-charcoal'
+          : 'size-filter-btn px-2.5 py-1 text-xs font-medium rounded-md border transition bg-white text-charcoal border-stone-200 hover:border-charcoal';
+      });
+    }
+
+    function applyFiltersAndRender() {
+      const normalizedQuery = normalizeText(state.searchQuery.trim());
+
+      const filtered = state.inventory.filter((item) => {
+        if (
+          state.selectedCategory !== 'ALL' &&
+          item.categoria !== state.selectedCategory
+        ) {
+          return false;
+        }
+
+        if (state.selectedSizeFilter !== 'ALL') {
+          const stockForSize = item.stock[state.selectedSizeFilter] ?? 0;
+          if (stockForSize <= 0) return false;
+        }
+
+        if (normalizedQuery) {
+          const haystack = normalizeText(
+            `${item.id} ${item.modelo} ${item.categoria} ${item.descripcion}`
+          );
+          if (!haystack.includes(normalizedQuery)) return false;
+        }
+
+        return true;
+      });
+
+      const countText = `${filtered.length} ${
+        filtered.length === 1 ? 'vestido' : 'vestidos'
+      }`;
+      dom.mobileCount.textContent = countText;
+      dom.desktopCount.textContent = countText;
+
+      if (filtered.length === 0) {
+        dom.productGrid.classList.add('hidden');
+        dom.emptyState.classList.remove('hidden');
+        return;
+      }
+
+      dom.emptyState.classList.add('hidden');
+      dom.productGrid.classList.remove('hidden');
+
+      dom.productGrid.innerHTML = filtered
+        .map((product) => {
+          const totalStock = getTotalStock(product);
+          const isSoldOut = totalStock === 0;
+          const availableSizes = ['S', 'M', 'L', 'XL'].filter(
+            (size) => product.stock[size] > 0
+          );
+
+          return `
+            <article
+              data-product-id="${escapeHtml(product.id)}"
+              tabindex="0"
+              role="button"
+              aria-label="Ver detalles de ${escapeHtml(product.modelo)}"
+              class="product-card group cursor-pointer bg-white rounded-2xl overflow-hidden border border-stone-200/75 shadow-xs hover:shadow-lg hover:border-dustyrose/40 transition-all duration-300 flex flex-col focus:outline-none focus:ring-2 focus:ring-dustyrose"
+            >
+              <div class="relative aspect-[3/4] bg-ivory overflow-hidden">
+                <img
+                  src="${escapeHtml(product.imagen)}"
+                  alt="${escapeHtml(product.modelo)}"
+                  loading="lazy"
+                  onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}';"
+                  class="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105 ${
+                    isSoldOut ? 'opacity-65 grayscale-[30%]' : ''
+                  }"
+                />
+                ${
+                  isSoldOut
+                    ? `<span class="absolute top-2.5 left-2.5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-charcoal/85 text-white">Agotado</span>`
+                    : ''
+                }
+                <div class="absolute bottom-2.5 right-2.5 hidden sm:flex gap-1">
+                  ${availableSizes
+                    .map(
+                      (s) =>
+                        `<span class="w-6 h-6 rounded-full bg-white/90 text-charcoal text-[10px] font-semibold flex items-center justify-center shadow-xs">${s}</span>`
+                    )
+                    .join('')}
+                </div>
+              </div>
+
+              <div class="p-3.5 sm:p-4 flex flex-col flex-grow justify-between">
+                <div>
+                  <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.16em] text-dustyrose font-semibold truncate">
+                    ${escapeHtml(product.categoria)}
+                  </p>
+                  <h2 class="font-serif text-sm sm:text-base font-semibold text-charcoal mt-0.5 leading-snug line-clamp-2 group-hover:text-dustyrose-dark transition-colors">
+                    ${escapeHtml(product.modelo)}
+                  </h2>
+                </div>
+                <div class="mt-2.5 pt-2 border-t border-stone-100 flex items-center justify-between gap-2">
+                  <span class="text-sm sm:text-base font-bold text-charcoal">
+                    ${formatCurrency(product.precio)}
+                  </span>
+                  <span class="text-[11px] font-medium text-muted group-hover:text-charcoal transition-colors">
+                    Ver más &rarr;
+                  </span>
+                </div>
+              </div>
+            </article>
+          `;
+        })
+        .join('');
+    }
+
+    /**
+     * =========================================================================
+     * 6. MODAL DE DETALLE Y VALIDACIÓN DINÁMICA DE STOCK POR TALLA
+     * =========================================================================
+     */
+    function openProductModal(productId) {
+      const product = state.inventory.find((item) => item.id === productId);
+      if (!product) return;
+
+      state.activeProduct = product;
+      state.selectedModalSize = null;
+
+      if (
+        state.selectedSizeFilter !== 'ALL' &&
+        product.stock[state.selectedSizeFilter] > 0
+      ) {
+        state.selectedModalSize = state.selectedSizeFilter;
+      }
+
+      dom.modalImage.src = product.imagen;
+      dom.modalImage.alt = product.modelo;
+      dom.modalImage.onerror = () => {
+        dom.modalImage.onerror = null;
+        dom.modalImage.src = FALLBACK_IMAGE;
+      };
+      dom.modalIdBadge.textContent = `Código: ${product.id}`;
+      dom.modalCategory.textContent = product.categoria;
+      dom.modalTitle.textContent = product.modelo;
+      dom.modalPrice.textContent = formatCurrency(product.precio);
+      dom.modalDescription.textContent = product.descripcion;
+
+      renderModalSizes();
+      updateModalActionButton();
+
+      dom.modal.classList.remove('hidden');
+      dom.modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
+
+    function closeProductModal() {
+      dom.modal.classList.add('hidden');
+      dom.modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+      state.activeProduct = null;
+      state.selectedModalSize = null;
+    }
+
+    function renderModalSizes() {
+      const product = state.activeProduct;
+      if (!product) return;
+
+      const sizes = ['S', 'M', 'L', 'XL'];
+      const totalStock = getTotalStock(product);
+
+      dom.modalSizesContainer.innerHTML = sizes
+        .map((size) => {
+          const qty = product.stock[size];
+          const isOut = qty === 0;
+          const isLow = qty >= 1 && qty <= 2;
+          const isSelected = state.selectedModalSize === size;
+
+          if (isOut) {
+            return `
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                class="relative py-2.5 rounded-xl border border-stone-200 bg-stone-100 text-stone-400 line-through text-sm font-medium cursor-not-allowed select-none"
+              >
+                ${size}
+              </button>
+            `;
+          }
+
+          const selectedClasses = isSelected
+            ? 'bg-charcoal text-white border-charcoal ring-2 ring-charcoal/20 shadow-xs'
+            : 'bg-white text-charcoal border-stone-300 hover:border-charcoal';
+
+          return `
+            <button
+              type="button"
+              data-modal-size="${size}"
+              class="modal-size-btn relative py-2.5 rounded-xl border text-sm font-semibold transition cursor-pointer ${selectedClasses}"
+            >
+              ${size}
+              ${
+                isLow
+                  ? `<span title="¡Últimas piezas!" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 ring-2 ring-white"></span>`
+                  : ''
+              }
+            </button>
+          `;
+        })
+        .join('');
+
+      if (totalStock === 0) {
+        dom.modalSizeStatus.textContent = 'Sin existencias';
+        dom.modalStockAlert.innerHTML =
+          '<span class="text-stone-500 font-normal">Este modelo se encuentra temporalmente agotado en todas las tallas.</span>';
+      } else if (state.selectedModalSize) {
+        const selectedQty = product.stock[state.selectedModalSize];
+        dom.modalSizeStatus.textContent = `Talla ${state.selectedModalSize} seleccionada`;
+
+        if (selectedQty >= 1 && selectedQty <= 2) {
+          dom.modalStockAlert.innerHTML = `<span class="text-orange-600 inline-flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            ¡Últimas piezas! (${selectedQty} ${selectedQty === 1 ? 'disponible' : 'disponibles'})
+          </span>`;
+        } else {
+          dom.modalStockAlert.innerHTML = `<span class="text-emerald-700 font-medium">Disponible en stock (${selectedQty} piezas)</span>`;
+        }
+      } else {
+        dom.modalSizeStatus.textContent = 'Elige una opción';
+        const hasAnyLowStock = sizes.some(
+          (s) => product.stock[s] >= 1 && product.stock[s] <= 2
+        );
+        dom.modalStockAlert.innerHTML = hasAnyLowStock
+          ? '<span class="text-orange-600">¡Últimas piezas! en tallas marcadas con punto naranja.</span>'
+          : '';
+      }
+    }
+
+    function updateModalActionButton() {
+      const product = state.activeProduct;
+      if (!product) return;
+
+      const totalStock = getTotalStock(product);
+      const btn = dom.btnConfirmOrder;
+
+      if (totalStock === 0) {
+        btn.disabled = true;
+        btn.className =
+          'w-full py-3.5 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 bg-stone-200 text-stone-500 cursor-not-allowed';
+        btn.innerHTML = 'Agotado';
+        dom.modalHelperNote.textContent =
+          'Consulta otros modelos disponibles en nuestro catálogo.';
+        return;
+      }
+
+      if (!state.selectedModalSize) {
+        btn.disabled = false;
+        btn.className =
+          'w-full py-3.5 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 bg-charcoal/90 hover:bg-charcoal text-white transition shadow-sm';
+        btn.innerHTML = `
+          ${getWhatsAppSvg()}
+          <span>Enviar Pedido por WhatsApp</span>
+        `;
+        dom.modalHelperNote.textContent =
+          'Selecciona una talla disponible arriba para confirmar tu pedido.';
+        return;
+      }
+
+      btn.disabled = false;
+      btn.className =
+        'w-full py-3.5 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 bg-charcoal hover:bg-dustyrose-dark text-white transition shadow-md cursor-pointer';
+      btn.innerHTML = `
+        ${getWhatsAppSvg()}
+        <span>Enviar Pedido por WhatsApp</span>
+      `;
+      dom.modalHelperNote.textContent =
+        'Serás redirigida a WhatsApp con tu nota de pedido lista para enviar.';
+    }
+
+    function getWhatsAppSvg() {
+      return `
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.031 2c-5.516 0-9.969 4.453-9.969 9.969 0 1.766.469 3.484 1.344 5l-1.406 5.156 5.281-1.391c1.453.797 3.094 1.219 4.75 1.219 5.516 0 9.969-4.453 9.969-9.969S17.547 2 12.031 2zm5.813 14.078c-.25.703-1.422 1.344-1.969 1.422-.5.078-1.156.109-1.859-.109-.438-.141-1-.328-1.719-.641-3.016-1.313-4.984-4.375-5.141-4.578-.141-.203-1.234-1.641-1.234-3.125s.781-2.219 1.063-2.516c.281-.313.609-.391.813-.391s.406 0 .594.016c.188.016.438-.078.688.531.25.609.859 2.094.938 2.25.078.156.125.328.031.531-.094.203-.141.328-.297.5-.156.172-.313.391-.453.516-.156.141-.313.297-.141.594.172.297.781 1.281 1.672 2.078 1.156 1.031 2.125 1.344 2.422 1.5.297.141.469.125.641-.078.172-.203.75-.875.953-1.172.203-.297.406-.25.688-.156.281.094 1.781.844 2.094 1 .313.156.516.234.594.359.078.125.078.734-.172 1.438z"/>
+        </svg>
+      `;
+    }
+
+    /**
+     * =========================================================================
+     * 7. FLUJO DE CIERRE DE PEDIDO (INTEGRACIÓN CON WHATSAPP)
+     * =========================================================================
+     */
+    function handleWhatsAppOrder() {
+      const product = state.activeProduct;
+      if (!product || getTotalStock(product) === 0) return;
+
+      if (!state.selectedModalSize) {
+        dom.modalStockAlert.innerHTML =
+          '<span class="text-red-600">Por favor selecciona una talla antes de enviar tu pedido.</span>';
+        dom.modalSizesContainer.classList.add('ring-2', 'ring-red-300', 'rounded-xl', 'p-1');
+        setTimeout(() => {
+          dom.modalSizesContainer.classList.remove('ring-2', 'ring-red-300', 'rounded-xl', 'p-1');
+        }, 1200);
+        return;
+      }
+
+      const formattedPrice = formatCurrency(product.precio);
+      const cleanPhone = String(WHATSAPP_PHONE).replace(/\D/g, '');
+
+      const receiptMessage = [
+        `✨ *NUEVO PEDIDO — ${BOUTIQUE_NAME.toUpperCase()}* ✨`,
+        `────────────────────────`,
+        `Hola, me gustaría confirmar disponibilidad y apartar el siguiente vestido:`,
+        ``,
+        `▪ *Código:* ${product.id}`,
+        `▪ *Modelo:* ${product.modelo}`,
+        `▪ *Categoría:* ${product.categoria}`,
+        `▪ *Talla seleccionada:* ${state.selectedModalSize}`,
+        `▪ *Precio:* ${formattedPrice}`,
+        `────────────────────────`,
+        `¿Me confirmas los pasos para realizar el pago y la entrega? ¡Muchas gracias!`,
+      ].join('\n');
+
+      const encodedMessage = encodeURIComponent(receiptMessage);
+      const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    }
+
+    /**
+     * =========================================================================
+     * 8. EVENT LISTENERS E INICIALIZACIÓN
+     * =========================================================================
+     */
+    function resetAllFilters() {
+      state.selectedCategory = 'ALL';
+      state.selectedSizeFilter = 'ALL';
+      state.searchQuery = '';
+      dom.searchInput.value = '';
+      renderCategoryFilters();
+      updateSizeFilterUI();
+      applyFiltersAndRender();
+    }
+
+    function bindEvents() {
+      dom.searchInput.addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        applyFiltersAndRender();
+      });
+
+      dom.categoryFilters.addEventListener('click', (e) => {
+        const btn = e.target.closest('.category-btn');
+        if (!btn) return;
+        state.selectedCategory = btn.dataset.category;
+        renderCategoryFilters();
+        applyFiltersAndRender();
+      });
+
+      dom.sizeFilters.addEventListener('click', (e) => {
+        const btn = e.target.closest('.size-filter-btn');
+        if (!btn) return;
+        state.selectedSizeFilter = btn.dataset.size;
+        updateSizeFilterUI();
+        applyFiltersAndRender();
+      });
+
+      dom.productGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.product-card');
+        if (!card) return;
+        openProductModal(card.dataset.productId);
+      });
+
+      dom.productGrid.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          const card = e.target.closest('.product-card');
+          if (!card) return;
+          e.preventDefault();
+          openProductModal(card.dataset.productId);
+        }
+      });
+
+      dom.modalSizesContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.modal-size-btn');
+        if (!btn || btn.disabled) return;
+        state.selectedModalSize = btn.dataset.modalSize;
+        renderModalSizes();
+        updateModalActionButton();
+      });
+
+      dom.btnConfirmOrder.addEventListener('click', handleWhatsAppOrder);
+
+      dom.modalClose.addEventListener('click', closeProductModal);
+      dom.modal.addEventListener('click', (e) => {
+        if (e.target === dom.modal) closeProductModal();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !dom.modal.classList.contains('hidden')) {
+          closeProductModal();
+        }
+      });
+
+      dom.btnClearFilters.addEventListener('click', resetAllFilters);
+      dom.brandReset.addEventListener('click', (e) => {
+        e.preventDefault();
+        resetAllFilters();
+      });
+      dom.btnRefresh.addEventListener('click', fetchInventory);
+    }
+
+    function initApp() {
+      dom.boutiqueTitle.textContent = BOUTIQUE_NAME;
+      dom.footerBoutique.textContent = BOUTIQUE_NAME;
+      dom.footerYear.textContent = new Date().getFullYear();
+      document.title = `${BOUTIQUE_NAME} — Catálogo de Vestidos`;
+
+      renderSkeletons();
+      bindEvents();
+      fetchInventory();
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
